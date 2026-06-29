@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Users, Briefcase, UserPlus } from 'lucide-react';
+import { MasterDataModal } from '../components/MasterDataModal';
 import api from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 
@@ -8,6 +9,7 @@ export function MasterData() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const user = useAuthStore(state => state.user);
 
   useEffect(() => {
@@ -36,26 +38,9 @@ export function MasterData() {
     }
   };
 
-  // Simple Add Function (Can be expanded to full modal forms)
-  const handleAdd = async () => {
-    const name = window.prompt(`Nama ${activeTab.slice(0, -1)} baru:`);
-    if (!name) return;
-    
-    try {
-      if (activeTab === 'users') {
-        const email = window.prompt('Email baru:');
-        const password = window.prompt('Password baru:');
-        const departmentId = window.prompt('ID Departemen (sementara copy dari list):');
-        const roleId = window.prompt('ID Role (sementara copy dari list):');
-        if (!email || !password || !departmentId || !roleId) return;
-        await api.post('/users', { name, email, password, departmentId, roleId });
-      } else {
-        await api.post(`/${activeTab}`, { name });
-      }
-      fetchData();
-    } catch (err) {
-      alert('Gagal menambah data');
-    }
+  // Open modal function
+  const handleAdd = () => {
+    setIsModalOpen(true);
   };
 
   if (user?.role?.name?.toLowerCase() !== 'admin') {
@@ -84,10 +69,6 @@ export function MasterData() {
               <p className="text-textSecondary text-sm">Kelola pengguna, departemen, dan jabatan</p>
             </div>
           </div>
-          <button onClick={handleAdd} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-            <UserPlus size={16} />
-            Tambah Data
-          </button>
         </div>
 
         <div className="flex gap-2 border-b border-borderBase pb-4">
@@ -117,6 +98,12 @@ export function MasterData() {
           <div className="text-center text-red-500 py-10">{error}</div>
         ) : (
           <div className="bg-bgSecondary rounded-2xl border border-borderBase overflow-hidden">
+            <div className="p-4 border-b border-borderBase flex justify-end bg-bgGlass">
+              <button onClick={handleAdd} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                <UserPlus size={16} />
+                Tambah {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+              </button>
+            </div>
             <table className="w-full text-left text-sm text-textSecondary">
               <thead className="bg-bgGlass text-textPrimary">
                 <tr>
@@ -149,6 +136,17 @@ export function MasterData() {
           </div>
         )}
       </div>
+
+      {isModalOpen && (
+        <MasterDataModal
+          type={activeTab}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={() => {
+            setIsModalOpen(false);
+            fetchData();
+          }}
+        />
+      )}
     </div>
   );
 }
