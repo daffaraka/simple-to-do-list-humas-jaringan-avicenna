@@ -17,11 +17,37 @@ export function KanbanColumn({ column, cards }: KanbanColumnProps) {
     id: column.id,
   });
 
+  const getColumnColors = (id: string) => {
+    switch (id) {
+      case 'new':
+        return 'bg-indigo-50/80 border-indigo-200/60 dark:bg-indigo-500/5 dark:border-indigo-500/20';
+      case 'progress':
+        return 'bg-amber-50/80 border-amber-200/60 dark:bg-amber-500/5 dark:border-amber-500/20';
+      case 'done':
+        return 'bg-emerald-50/80 border-emerald-200/60 dark:bg-emerald-500/5 dark:border-emerald-500/20';
+      default:
+        return 'bg-bgSecondary/50 border-borderBase';
+    }
+  };
+
+  const getHeaderColors = (id: string) => {
+    switch (id) {
+      case 'new':
+        return 'bg-indigo-100/50 border-indigo-200/60 dark:bg-indigo-500/10 dark:border-indigo-500/20';
+      case 'progress':
+        return 'bg-amber-100/50 border-amber-200/60 dark:bg-amber-500/10 dark:border-amber-500/20';
+      case 'done':
+        return 'bg-emerald-100/50 border-emerald-200/60 dark:bg-emerald-500/10 dark:border-emerald-500/20';
+      default:
+        return 'bg-bgGlass border-borderBase';
+    }
+  };
+
   return (
     <>
-      <div className="flex flex-col flex-1 min-w-[300px] bg-bgSecondary/50 border border-borderBase rounded-2xl overflow-hidden h-full max-h-full transition-colors duration-300">
+      <div className={`flex flex-col flex-1 min-w-[300px] border rounded-2xl overflow-hidden h-full max-h-full transition-colors duration-300 ${getColumnColors(column.id)}`}>
         {/* Column Header */}
-        <div className="p-4 border-b border-borderBase bg-bgGlass flex items-center justify-between">
+        <div className={`p-4 border-b flex items-center justify-between transition-colors duration-300 ${getHeaderColors(column.id)}`}>
           <div className="flex items-center gap-2">
             <h2 className="font-semibold text-textPrimary">{column.title}</h2>
             <span className="bg-bgGlassHover text-textSecondary text-xs px-2 py-0.5 rounded-full font-medium">
