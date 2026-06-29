@@ -4,12 +4,12 @@ WORKDIR /app
 # Copy dependency definitions
 COPY package*.json ./
 
-# Install dependencies
+# Copy Prisma schema
+COPY prisma ./prisma
+
+# Install dependencies (will trigger postinstall script: prisma generate)
 RUN npm ci
 
-# Copy Prisma schema and generate client
-COPY prisma ./prisma
-RUN npx prisma generate
 
 # Copy the rest of the application
 COPY . .
