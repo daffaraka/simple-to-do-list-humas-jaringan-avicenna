@@ -1,0 +1,35 @@
+name: Deploy to GCP Compute Engine
+
+on:
+  push:
+    branches:
+      - master # Deploy automatically when code is pushed to master
+
+jobs:
+  deploy:
+    name: Deploy to GCP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.GCP_HOST }}
+          username: ${{ secrets.GCP_USERNAME }}
+          key: ${{ secrets.GCP_SSH_KEY }}
+          script: |
+            # Pindah ke direktori project di dalam server GCP Anda
+            # Ubah path ini sesuai dengan di mana Anda meng-clone repositori di server GCP
+            cd ~/to-do-list-humas-jaringan
+            
+            # Tarik kode terbaru dari GitHub
+            git pull origin master
+            
+            # Build ulang dan jalankan container di background
+            docker-compose up -d --build
+            
+            # Hapus image lama yang sudah tidak dipakai agar tidak menuhin storage
+            docker image prune -f
