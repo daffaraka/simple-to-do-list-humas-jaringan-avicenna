@@ -83,9 +83,9 @@ export function KanbanBoard() {
 
   return (
     <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-bgPrimary via-bgSecondary to-indigo-950/20 z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-bgPrimary via-bgSecondary to-indigo-500/10 dark:to-indigo-950/20 z-0 transition-colors duration-300"></div>
       
-      <div className="relative z-10 flex gap-6 h-full items-start">
+      <div className="relative z-10 flex gap-6 h-full items-start w-full">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}

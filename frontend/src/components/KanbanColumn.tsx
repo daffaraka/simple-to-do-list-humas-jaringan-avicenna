@@ -19,18 +19,18 @@ export function KanbanColumn({ column, cards }: KanbanColumnProps) {
 
   return (
     <>
-      <div className="flex flex-col bg-bgSecondary/50 border border-white/5 rounded-2xl overflow-hidden w-80 shrink-0 h-full max-h-full">
+      <div className="flex flex-col flex-1 min-w-[300px] bg-bgSecondary/50 border border-borderBase rounded-2xl overflow-hidden h-full max-h-full transition-colors duration-300">
         {/* Column Header */}
-        <div className="p-4 border-b border-white/5 bg-black/20 flex items-center justify-between">
+        <div className="p-4 border-b border-borderBase bg-bgGlass flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="font-semibold text-gray-200">{column.title}</h2>
-            <span className="bg-white/10 text-gray-400 text-xs px-2 py-0.5 rounded-full font-medium">
+            <h2 className="font-semibold text-textPrimary">{column.title}</h2>
+            <span className="bg-bgGlassHover text-textSecondary text-xs px-2 py-0.5 rounded-full font-medium">
               {cards.length}
             </span>
           </div>
           <button
             onClick={() => setIsCreating(true)}
-            className="text-gray-400 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors"
+            className="text-textSecondary hover:text-textPrimary p-1 rounded-md hover:bg-bgGlass transition-colors"
             title="Tambah tugas"
           >
             <Plus size={18} />
