@@ -1,10 +1,13 @@
 import { create } from 'zustand';
-import type { Card, ColumnId, Department, ActiveDepartmentType } from '../types';
+import { persist } from 'zustand/middleware';
+import type { Card, ColumnId, Department, ActiveDepartmentType, Board } from '../types';
 import api from '../lib/api';
 
 export type ViewMode = 'kanban' | 'calendar';
 
 interface KanbanState {
+  boards: Board[];
+  activeBoardId: string | null;
   cards: Card[];
   searchQuery: string;
   filterLabel: string | null;
@@ -14,7 +17,10 @@ interface KanbanState {
   isLoading: boolean;
   error: string | null;
 
-  fetchCards: () => Promise<void>;
+  fetchBoards: () => Promise<void>;
+  createBoard: (title: string, description?: string) => Promise<void>;
+  setActiveBoardId: (boardId: string | null) => void;
+  fetchCards: (boardId: string) => Promise<void>;
   addCard: (title: string, columnId: ColumnId, extraData?: Partial<Card>) => Promise<void>;
   updateCard: (id: string, updates: Partial<Card>) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
@@ -28,20 +34,50 @@ interface KanbanState {
   getFilteredCards: (columnId: ColumnId) => Card[];
 }
 
-export const useKanban = create<KanbanState>((set, get) => ({
-  cards: [],
-  searchQuery: '',
-  filterLabel: null,
-  activeDepartment: 'humas',
-  viewMode: 'kanban',
-  isDarkMode: true,
-  isLoading: false,
-  error: null,
+export const useKanban = create<KanbanState>()(
+  persist(
+    (set, get) => ({
+      boards: [],
+      activeBoardId: null,
+      cards: [],
+      searchQuery: '',
+      filterLabel: null,
+      activeDepartment: 'humas',
+      viewMode: 'kanban',
+      isDarkMode: true,
+      isLoading: false,
+      error: null,
 
-  fetchCards: async () => {
+  fetchBoards: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get('/tasks');
+      const response = await api.get('/boards');
+      set({ boards: response.data, isLoading: false });
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+    }
+  },
+
+  createBoard: async (title, description) => {
+    try {
+      const response = await api.post('/boards', { title, description });
+      set((state) => ({ boards: [response.data, ...state.boards] }));
+    } catch (err: any) {
+      console.error('Failed to create board', err);
+    }
+  },
+
+  setActiveBoardId: (boardId) => {
+    set({ activeBoardId: boardId });
+    if (boardId) {
+      get().fetchCards(boardId);
+    }
+  },
+
+  fetchCards: async (boardId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.get(`/tasks?boardId=${boardId}`);
       set({ cards: response.data, isLoading: false });
     } catch (err: any) {
       set({ error: err.message, isLoading: false });
@@ -50,11 +86,15 @@ export const useKanban = create<KanbanState>((set, get) => ({
 
   addCard: async (title, columnId, extraData) => {
     try {
+      const activeBoardId = get().activeBoardId;
+      if (!activeBoardId) return;
+
       // Default to humas if activeDepartment is 'all'
       const targetDepartment = extraData?.department || (get().activeDepartment === 'all' ? 'humas' : get().activeDepartment);
       const response = await api.post('/tasks', {
         title,
         columnId,
+        boardId: activeBoardId,
         department: targetDepartment,
         ...extraData,
       });
@@ -203,4 +243,22 @@ export const useKanban = create<KanbanState>((set, get) => ({
       })
       .sort((a, b) => a.position - b.position);
   },
-}));
+}),
+  {
+    name: 'kanban-ui-settings',
+    partialize: (state) => ({ 
+      isDarkMode: state.isDarkMode,
+      viewMode: state.viewMode,
+      activeDepartment: state.activeDepartment
+    }),
+    onRehydrateStorage: () => (state) => {
+      if (state) {
+        if (state.isDarkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    }
+  }
+));

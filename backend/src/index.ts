@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth';
 import taskRoutes from './routes/tasks';
 import checklistRoutes from './routes/checklists';
+import boardRoutes from './routes/boards';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/checklists', checklistRoutes);
+app.use('/api/boards', boardRoutes);
 
 const PORT = process.env.PORT || 3001;
 

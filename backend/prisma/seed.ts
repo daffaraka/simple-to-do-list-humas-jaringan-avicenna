@@ -9,11 +9,12 @@ function randomDate(start: Date, end: Date) {
 
 async function main() {
   const hashedPassword = await bcrypt.hash('password', 10);
-  
-  // Clear existing tasks and non-admin users
+
+  // Clear existing data
   await prisma.checklist.deleteMany({});
   await prisma.taskLabel.deleteMany({});
   await prisma.task.deleteMany({});
+  await prisma.board.deleteMany({});
   await prisma.user.deleteMany({
     where: {
       email: {
@@ -42,6 +43,8 @@ async function main() {
     { name: 'Fikri Fadlu (Jagakarsa)', email: 'fikri.fadlu@gmail.com', department: 'jaringan' },
     { name: 'Fathul Umam (Cinere)', email: 'fathul.umam@gmail.com', department: 'jaringan' },
     { name: 'Reza (Pamulang)', email: 'reza@gmail.com', department: 'jaringan' },
+    { name: 'Admin BPS', email: 'admin@gmail.com', department: 'admin' },
+
   ];
 
   const dbUsers = [];
@@ -63,12 +66,22 @@ async function main() {
   // Seed Tasks (5 per user)
   const columns = ['new', 'progress', 'done'] as const;
   const priorities = ['low', 'medium', 'high'] as const;
-  
+
   const startDate = new Date('2026-06-15T00:00:00Z');
   const endDate = new Date('2026-07-20T00:00:00Z');
 
   let taskCount = 0;
   for (const user of dbUsers) {
+    // Create a default board for this user
+    const board = await prisma.board.create({
+      data: {
+        title: `Proyek Utama ${user.name.split(' ')[0]}`,
+        description: `Board default untuk ${user.name}`,
+        userId: user.id,
+        department: user.department,
+      }
+    });
+
     for (let i = 1; i <= 5; i++) {
       const requestDate = randomDate(startDate, new Date('2026-06-25T00:00:00Z'));
       const dueDate = new Date(requestDate);
@@ -87,6 +100,7 @@ async function main() {
           dueDate,
           priority,
           columnId,
+          boardId: board.id,
           position: i,
           checklists: {
             create: [

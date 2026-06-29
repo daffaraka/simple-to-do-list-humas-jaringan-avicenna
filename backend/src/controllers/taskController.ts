@@ -4,7 +4,10 @@ import { AuthRequest } from '../middleware/auth';
 
 export const getTasks = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const { boardId } = req.query;
+
     const tasks = await prisma.task.findMany({
+      where: boardId ? { boardId: boardId as string } : {},
       include: {
         pic: { select: { name: true, email: true } },
         checklists: true,
@@ -21,7 +24,7 @@ export const getTasks = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const createTask = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { title, description, documentLink, picId, requestDate, dueDate, priority, columnId, department, labels } = req.body;
+    const { title, description, documentLink, picId, requestDate, dueDate, priority, columnId, department, labels, boardId } = req.body;
 
     const task = await prisma.task.create({
       data: {
@@ -34,6 +37,7 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
         priority: priority || 'low',
         columnId: columnId || 'new',
         department: department || req.user?.department || 'humas',
+        boardId: boardId,
         labels: labels ? {
           create: labels.map((labelId: string) => ({ labelId }))
         } : undefined

@@ -15,6 +15,16 @@ export interface CardLabel {
 export type Department = 'humas' | 'jaringan';
 export type ActiveDepartmentType = Department | 'all';
 
+export interface Board {
+  id: string;
+  title: string;
+  description: string | null;
+  userId: string;
+  department: Department;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Card {
   id: string;
   title: string;
@@ -23,6 +33,7 @@ export interface Card {
   requestDate: string | null;
   pic: string;
   columnId: ColumnId;
+  boardId: string;
   department: Department;
   position: number;
   labels: CardLabel[];

@@ -35,6 +35,7 @@ model User {
   updatedAt  DateTime   @updatedAt
 
   tasks      Task[]     @relation("PicTasks")
+  boards     Board[]    @relation("UserBoards")
 }
 
 model Task {
@@ -44,6 +45,8 @@ model Task {
   documentLink String?
   picId        String?
   pic          User?       @relation("PicTasks", fields: [picId], references: [id])
+  boardId      String
+  board        Board       @relation(fields: [boardId], references: [id], onDelete: Cascade)
   
   requestDate  DateTime?
   dueDate      DateTime?
@@ -74,4 +77,18 @@ model TaskLabel {
   labelId String 
   
   @@unique([taskId, labelId])
+}
+
+model Board {
+  id          String      @id @default(uuid())
+  title       String
+  description String?     @db.Text
+  userId      String
+  user        User        @relation("UserBoards", fields: [userId], references: [id])
+  department  Department
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  tasks       Task[]
 }
