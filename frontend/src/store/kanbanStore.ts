@@ -6,6 +6,7 @@ import api from '../lib/api';
 export type ViewMode = 'kanban' | 'calendar';
 
 interface KanbanState {
+  departments: Department[];
   boards: Board[];
   activeBoardId: string | null;
   cards: Card[];
@@ -17,6 +18,7 @@ interface KanbanState {
   isLoading: boolean;
   error: string | null;
 
+  fetchDepartments: () => Promise<void>;
   fetchBoards: () => Promise<void>;
   createBoard: (title: string, description?: string) => Promise<void>;
   setActiveBoardId: (boardId: string | null) => void;
@@ -37,16 +39,26 @@ interface KanbanState {
 export const useKanban = create<KanbanState>()(
   persist(
     (set, get) => ({
+      departments: [],
       boards: [],
       activeBoardId: null,
       cards: [],
       searchQuery: '',
       filterLabel: null,
-      activeDepartment: 'humas',
+      activeDepartment: 'all',
       viewMode: 'kanban',
       isDarkMode: true,
       isLoading: false,
       error: null,
+
+  fetchDepartments: async () => {
+    try {
+      const response = await api.get('/departments');
+      set({ departments: response.data });
+    } catch (err) {
+      console.error('Failed to fetch departments', err);
+    }
+  },
 
   fetchBoards: async () => {
     set({ isLoading: true, error: null });
@@ -89,13 +101,12 @@ export const useKanban = create<KanbanState>()(
       const activeBoardId = get().activeBoardId;
       if (!activeBoardId) return;
 
-      // Default to humas if activeDepartment is 'all'
-      const targetDepartment = extraData?.department || (get().activeDepartment === 'all' ? 'humas' : get().activeDepartment);
+      const targetDepartmentId = extraData?.departmentId || (get().activeDepartment === 'all' ? get().departments[0]?.id : get().activeDepartment);
       const response = await api.post('/tasks', {
         title,
         columnId,
         boardId: activeBoardId,
-        department: targetDepartment,
+        departmentId: targetDepartmentId,
         ...extraData,
       });
       set((state) => ({ cards: [...state.cards, response.data] }));
@@ -141,7 +152,7 @@ export const useKanban = create<KanbanState>()(
     const card = previousCards.find((c) => c.id === cardId);
     if (!card || card.columnId === toColumnId) return;
 
-    const targetCards = previousCards.filter((c) => c.columnId === toColumnId && c.department === card.department);
+    const targetCards = previousCards.filter((c) => c.columnId === toColumnId && c.departmentId === card.departmentId);
     const newPosition = targetCards.length;
 
     set((state) => ({
@@ -168,7 +179,7 @@ export const useKanban = create<KanbanState>()(
 
     const columnId = overCard.columnId;
     const columnCards = previousCards
-      .filter((c) => c.columnId === columnId && c.department === activeCard.department)
+      .filter((c) => c.columnId === columnId && c.departmentId === activeCard.departmentId)
       .sort((a, b) => a.position - b.position);
 
     const activeIdx = columnCards.findIndex((c) => c.id === activeId);
@@ -223,7 +234,7 @@ export const useKanban = create<KanbanState>()(
     return cards
       .filter((card) => {
         if (card.columnId !== columnId) return false;
-        if (activeDepartment !== 'all' && card.department !== activeDepartment) return false;
+        if (activeDepartment !== 'all' && card.departmentId !== activeDepartment) return false;
         
         if (searchQuery) {
           const q = searchQuery.toLowerCase();

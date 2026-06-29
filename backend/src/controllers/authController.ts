@@ -6,7 +6,7 @@ import { AuthRequest } from '../middleware/auth';
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, name, department } = req.body;
+    const { email, password, name, departmentId, roleId } = req.body;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -20,7 +20,8 @@ export const register = async (req: Request, res: Response) => {
         email,
         password: hashedPassword,
         name,
-        department,
+        departmentId,
+        roleId,
       },
     });
 
@@ -35,7 +36,10 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ 
+      where: { email },
+      include: { role: true, department: true } 
+    });
     if (!user) {
       return res.status(401).json({ message: 'Email atau password salah' });
     }
@@ -47,7 +51,7 @@ export const login = async (req: Request, res: Response) => {
 
     const secret = process.env.JWT_SECRET || 'super_secret_key_change_me_in_production';
     const token = jwt.sign(
-      { id: user.id, email: user.email, department: user.department },
+      { id: user.id, email: user.email, departmentId: user.departmentId, role: user.role },
       secret,
       { expiresIn: '7d' }
     );
@@ -60,6 +64,7 @@ export const login = async (req: Request, res: Response) => {
         email: user.email,
         name: user.name,
         department: user.department,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -72,7 +77,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user?.id },
-      select: { id: true, email: true, name: true, department: true },
+      select: { id: true, email: true, name: true, department: true, role: true },
     });
     
     if (!user) return res.status(404).json({ message: 'User tidak ditemukan' });

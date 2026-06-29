@@ -5,7 +5,8 @@ import { Department } from '@prisma/client';
 export interface AuthUser {
   id: string;
   email: string;
-  department: Department;
+  departmentId: string;
+  role: { id: string; name: string };
 }
 
 export interface AuthRequest extends Request {
@@ -28,4 +29,11 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   } catch (error) {
     return res.status(403).json({ message: 'Token tidak valid atau kedaluwarsa.' });
   }
+};
+
+export const authorizeAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (req.user?.role?.name?.toLowerCase() !== 'admin') {
+    return res.status(403).json({ message: 'Akses ditolak. Membutuhkan hak akses Admin.' });
+  }
+  next();
 };

@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Department } from '../types';
+
 
 interface User {
   id: string;
   email: string;
   name: string;
-  department: Department;
+  departmentId: string;
+  role: { id: string; name: string };
 }
 
 interface AuthState {

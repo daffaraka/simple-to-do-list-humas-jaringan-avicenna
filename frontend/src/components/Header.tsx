@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { Search, Tag, Users, Network, LayoutGrid, Calendar as CalendarIcon, LogOut, Sun, Moon, Layers, ArrowLeft } from 'lucide-react';
+import { Search, Tag, Users, LayoutGrid, Calendar as CalendarIcon, LogOut, Sun, Moon, Layers, ArrowLeft } from 'lucide-react';
 import { AVAILABLE_LABELS } from '../types';
 import { useKanban } from '../store/kanbanStore';
 import { useAuthStore } from '../store/authStore';
 
 export function Header() {
-  const { searchQuery, setSearchQuery, filterLabel, setFilterLabel, activeDepartment, setActiveDepartment, viewMode, setViewMode, isDarkMode, toggleDarkMode, activeBoardId, setActiveBoardId, boards } = useKanban();
+  const { searchQuery, setSearchQuery, filterLabel, setFilterLabel, activeDepartment, setActiveDepartment, viewMode, setViewMode, isDarkMode, toggleDarkMode, activeBoardId, setActiveBoardId, boards, departments } = useKanban();
   const activeBoard = boards.find(b => b.id === activeBoardId);
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role?.name?.toLowerCase() === 'admin';
 
   return (
     <header className="bg-bgSecondary/80 backdrop-blur-md border-b border-borderBase sticky top-0 z-20 flex flex-col transition-colors duration-300">
@@ -64,6 +64,19 @@ export function Header() {
         </div>
         )}
 
+        {/* Master Data Button (Admin Only) */}
+        {!activeBoardId && isAdmin && (
+          <div className="hidden md:flex ml-auto mr-4">
+            <button
+              onClick={() => window.location.href = '#master'} // or setup proper routing later
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 rounded-lg text-sm font-medium transition-colors border border-indigo-500/30"
+            >
+              <Users size={16} />
+              Master Data
+            </button>
+          </div>
+        )}
+
         {/* Search & Profile (Right) */}
         <div className="flex items-center min-w-[200px] justify-end gap-4 ml-auto">
           {activeBoardId && (
@@ -90,7 +103,7 @@ export function Header() {
           <div className="flex items-center gap-3 pl-4 border-l border-borderBase">
             <div className="hidden lg:block text-right">
               <div className="text-sm font-medium text-textPrimary">{user?.name}</div>
-              <div className="text-xs text-textSecondary capitalize">{user?.department}</div>
+              <div className="text-xs text-textSecondary capitalize">{departments.find(d => d.id === user?.departmentId)?.name || 'Unknown'}</div>
             </div>
             <button
               onClick={logout}
@@ -106,10 +119,10 @@ export function Header() {
       {/* Sub Nav */}
       <div className="px-6 py-3 bg-bgGlass border-t border-borderBase flex items-center justify-between transition-colors duration-300">
         {/* Department Switcher */}
-        <div className="flex bg-bgGlass rounded-lg p-1 border border-borderBase">
+        <div className="flex bg-bgGlass rounded-lg p-1 border border-borderBase overflow-x-auto max-w-full custom-scrollbar">
           <button
             onClick={() => setActiveDepartment('all')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
               activeDepartment === 'all' 
                 ? 'bg-blue-500/20 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)] dark:text-blue-300' 
                 : 'text-textSecondary hover:text-textPrimary hover:bg-bgGlassHover'
@@ -118,28 +131,20 @@ export function Header() {
             <Layers size={16} />
             Semua
           </button>
-          <button
-            onClick={() => setActiveDepartment('humas')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
-              activeDepartment === 'humas' 
-                ? 'bg-indigo-500/20 text-indigo-600 shadow-[0_0_10px_rgba(99,102,241,0.2)] dark:text-indigo-300' 
-                : 'text-textSecondary hover:text-textPrimary hover:bg-bgGlassHover'
-            }`}
-          >
-            <Users size={16} />
-            Humas
-          </button>
-          <button
-            onClick={() => setActiveDepartment('jaringan')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
-              activeDepartment === 'jaringan' 
-                ? 'bg-purple-500/20 text-purple-600 shadow-[0_0_10px_rgba(168,85,247,0.2)] dark:text-purple-300' 
-                : 'text-textSecondary hover:text-textPrimary hover:bg-bgGlassHover'
-            }`}
-          >
-            <Network size={16} />
-            Jaringan
-          </button>
+          {departments.map((dept) => (
+            <button
+              key={dept.id}
+              onClick={() => setActiveDepartment(dept.id)}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                activeDepartment === dept.id
+                  ? 'bg-indigo-500/20 text-indigo-600 shadow-[0_0_10px_rgba(99,102,241,0.2)] dark:text-indigo-300' 
+                  : 'text-textSecondary hover:text-textPrimary hover:bg-bgGlassHover'
+              }`}
+            >
+              <Users size={16} />
+              {dept.name}
+            </button>
+          ))}
         </div>
 
         {/* Label Filter (Moved to Sub Nav for balance) - Only show if in board */}

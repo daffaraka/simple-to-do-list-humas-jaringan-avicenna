@@ -15,48 +15,46 @@ async function main() {
   await prisma.taskLabel.deleteMany({});
   await prisma.task.deleteMany({});
   await prisma.board.deleteMany({});
-  await prisma.user.deleteMany({
-    where: {
-      email: {
-        not: 'admin@gmail.com'
-      }
-    }
-  });
+  await prisma.user.deleteMany({});
+  await prisma.role.deleteMany({});
+  await prisma.department.deleteMany({});
 
-  // Seed Admin
-  await prisma.user.upsert({
-    where: { email: 'admin@gmail.com' },
-    update: {},
-    create: {
-      email: 'admin@gmail.com',
-      name: 'Super Admin',
-      password: hashedPassword,
-      department: 'admin',
-    },
-  });
+  // 1. Seed Roles
+  const adminRole = await prisma.role.create({ data: { name: 'Admin' } });
+  const staffRole = await prisma.role.create({ data: { name: 'Staff' } });
 
+  // 2. Seed Departments
+  const deptAdmin = await prisma.department.create({ data: { name: 'Admin' } });
+  const deptHumas = await prisma.department.create({ data: { name: 'Humas' } });
+  const deptJaringan = await prisma.department.create({ data: { name: 'Jaringan' } });
+
+  const getDept = (name: string) => {
+    if (name === 'admin') return deptAdmin.id;
+    if (name === 'humas') return deptHumas.id;
+    return deptJaringan.id;
+  }
+
+  // 3. Seed Users
   const userData = [
-    { name: 'Tiara Novianti Outri Fadia (Jagakarsa)', email: 'tiara.novianti@gmail.com', department: 'humas' },
-    { name: 'Sinta J. Kartika (Cinere)', email: 'sinta.j@gmail.com', department: 'humas' },
-    { name: 'Rafi Fadillah Rachmat (Jagakarsa)', email: 'rafi.fadillah@gmail.com', department: 'humas' },
-    { name: 'Aisyah Nurjannah (Cinere)', email: 'aisyah.nurjannah@gmail.com', department: 'humas' },
-    { name: 'Fikri Fadlu (Jagakarsa)', email: 'fikri.fadlu@gmail.com', department: 'jaringan' },
-    { name: 'Fathul Umam (Cinere)', email: 'fathul.umam@gmail.com', department: 'jaringan' },
-    { name: 'Reza (Pamulang)', email: 'reza@gmail.com', department: 'jaringan' },
-    { name: 'Admin BPS', email: 'admin@gmail.com', department: 'admin' },
-
+    { name: 'Super Admin', email: 'admin@gmail.com', department: 'admin', roleId: adminRole.id },
+    { name: 'Tiara Novianti Outri Fadia (Jagakarsa)', email: 'tiara.novianti@gmail.com', department: 'humas', roleId: staffRole.id },
+    { name: 'Sinta J. Kartika (Cinere)', email: 'sinta.j@gmail.com', department: 'humas', roleId: staffRole.id },
+    { name: 'Rafi Fadillah Rachmat (Jagakarsa)', email: 'rafi.fadillah@gmail.com', department: 'humas', roleId: staffRole.id },
+    { name: 'Aisyah Nurjannah (Cinere)', email: 'aisyah.nurjannah@gmail.com', department: 'humas', roleId: staffRole.id },
+    { name: 'Fikri Fadlu (Jagakarsa)', email: 'fikri.fadlu@gmail.com', department: 'jaringan', roleId: staffRole.id },
+    { name: 'Fathul Umam (Cinere)', email: 'fathul.umam@gmail.com', department: 'jaringan', roleId: staffRole.id },
+    { name: 'Reza (Pamulang)', email: 'reza@gmail.com', department: 'jaringan', roleId: staffRole.id },
   ];
 
   const dbUsers = [];
   for (const u of userData) {
-    const user = await prisma.user.upsert({
-      where: { email: u.email },
-      update: {},
-      create: {
+    const user = await prisma.user.create({
+      data: {
         email: u.email,
         name: u.name,
         password: hashedPassword,
-        department: u.department as any,
+        departmentId: getDept(u.department),
+        roleId: u.roleId,
       },
     });
     dbUsers.push(user);
@@ -68,7 +66,6 @@ async function main() {
   const priorities = ['low', 'medium', 'high'] as const;
 
   const startDate = new Date('2026-06-15T00:00:00Z');
-  const endDate = new Date('2026-07-20T00:00:00Z');
 
   let taskCount = 0;
   for (const user of dbUsers) {
@@ -78,14 +75,14 @@ async function main() {
         title: `Proyek Utama ${user.name.split(' ')[0]}`,
         description: `Board default untuk ${user.name}`,
         userId: user.id,
-        department: user.department,
+        departmentId: user.departmentId,
       }
     });
 
     for (let i = 1; i <= 5; i++) {
       const requestDate = randomDate(startDate, new Date('2026-06-25T00:00:00Z'));
       const dueDate = new Date(requestDate);
-      dueDate.setDate(dueDate.getDate() + Math.floor(Math.random() * 14) + 2); // 2 to 15 days later
+      dueDate.setDate(dueDate.getDate() + Math.floor(Math.random() * 14) + 2);
 
       const columnId = columns[Math.floor(Math.random() * columns.length)];
       const priority = priorities[Math.floor(Math.random() * priorities.length)];
@@ -95,7 +92,7 @@ async function main() {
           title: `Tugas ${i} untuk ${user.name.split(' ')[0]}`,
           description: `Ini adalah deskripsi otomatis untuk tugas ${i}. Tolong diselesaikan sebelum tenggat waktu.`,
           picId: user.id,
-          department: user.department,
+          departmentId: user.departmentId,
           requestDate,
           dueDate,
           priority,

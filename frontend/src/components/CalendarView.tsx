@@ -14,7 +14,7 @@ import {
   getDay
 } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, CheckSquare } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { useKanban } from '../store/kanbanStore';
 import { CardModal } from './CardModal';
 import type { Card } from '../types';
@@ -26,7 +26,7 @@ export function CalendarView() {
 
   // Filter cards by active department and those that have a requestDate
   const departmentCards = useMemo(() => {
-    return cards.filter(card => (activeDepartment === 'all' || card.department === activeDepartment) && card.requestDate);
+    return cards.filter(card => (activeDepartment === 'all' || card.departmentId === activeDepartment) && card.requestDate);
   }, [cards, activeDepartment]);
 
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));

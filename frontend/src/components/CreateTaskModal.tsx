@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Type, FileText, User, Calendar, Briefcase } from 'lucide-react';
-import type { ColumnId, Department } from '../types';
+import type { ColumnId } from '../types';
 import { useKanban } from '../store/kanbanStore';
 
 interface CreateTaskModalProps {
@@ -11,12 +11,16 @@ interface CreateTaskModalProps {
 }
 
 export function CreateTaskModal({ columnId, onClose }: CreateTaskModalProps) {
-  const { addCard, activeDepartment } = useKanban();
+  const { addCard, activeDepartment, departments } = useKanban();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [pic, setPic] = useState('');
   const [requestDate, setRequestDate] = useState('');
-  const [department, setDepartment] = useState<Department>(activeDepartment);
+  
+  // Initialize with activeDepartment or the first available department
+  const [departmentId, setDepartmentId] = useState<string>(
+    activeDepartment === 'all' && departments.length > 0 ? departments[0].id : activeDepartment as string
+  );
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -26,7 +30,7 @@ export function CreateTaskModal({ columnId, onClose }: CreateTaskModalProps) {
       description,
       pic,
       requestDate: requestDate || null,
-      department
+      departmentId
     });
     
     onClose();
@@ -120,31 +124,21 @@ export function CreateTaskModal({ columnId, onClose }: CreateTaskModalProps) {
               <Briefcase size={14} className="text-indigo-400" />
               Tugas Milik Divisi
             </label>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <label className="flex-1 cursor-pointer">
-                <input 
-                  type="radio" 
-                  name="department" 
-                  className="peer sr-only" 
-                  checked={department === 'humas'}
-                  onChange={() => setDepartment('humas')}
-                />
-                <div className="text-center px-4 py-2 rounded-lg border border-borderBase text-sm font-medium text-textSecondary peer-checked:bg-indigo-600/20 peer-checked:border-indigo-500/50 peer-checked:text-indigo-300 transition-all">
-                  Humas
-                </div>
-              </label>
-              <label className="flex-1 cursor-pointer">
-                <input 
-                  type="radio" 
-                  name="department" 
-                  className="peer sr-only" 
-                  checked={department === 'jaringan'}
-                  onChange={() => setDepartment('jaringan')}
-                />
-                <div className="text-center px-4 py-2 rounded-lg border border-borderBase text-sm font-medium text-textSecondary peer-checked:bg-indigo-600/20 peer-checked:border-indigo-500/50 peer-checked:text-indigo-300 transition-all">
-                  Jaringan
-                </div>
-              </label>
+            <div className="flex flex-col sm:flex-row gap-3 overflow-x-auto custom-scrollbar pb-2">
+              {departments.map((dept) => (
+                <label key={dept.id} className="flex-1 cursor-pointer min-w-[100px]">
+                  <input 
+                    type="radio" 
+                    name="departmentId" 
+                    className="peer sr-only" 
+                    checked={departmentId === dept.id}
+                    onChange={() => setDepartmentId(dept.id)}
+                  />
+                  <div className="text-center px-4 py-2 rounded-lg border border-borderBase text-sm font-medium text-textSecondary peer-checked:bg-indigo-600/20 peer-checked:border-indigo-500/50 peer-checked:text-indigo-300 transition-all">
+                    {dept.name}
+                  </div>
+                </label>
+              ))}
             </div>
           </div>
 

@@ -12,15 +12,25 @@ export interface CardLabel {
   color: string;
 }
 
-export type Department = 'humas' | 'jaringan';
-export type ActiveDepartmentType = Department | 'all';
+export interface Department {
+  id: string;
+  name: string;
+}
+
+export interface Role {
+  id: string;
+  name: string;
+}
+
+export type ActiveDepartmentType = string | 'all'; // ID of department or 'all'
 
 export interface Board {
   id: string;
   title: string;
   description: string | null;
   userId: string;
-  department: Department;
+  departmentId: string;
+  department?: Department;
   createdAt: string;
   updatedAt: string;
 }
@@ -34,7 +44,8 @@ export interface Card {
   pic: string;
   columnId: ColumnId;
   boardId: string;
-  department: Department;
+  departmentId: string;
+  department?: Department;
   position: number;
   labels: CardLabel[];
   checklist: ChecklistItem[];

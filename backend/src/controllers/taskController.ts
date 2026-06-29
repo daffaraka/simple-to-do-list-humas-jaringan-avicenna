@@ -24,7 +24,7 @@ export const getTasks = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const createTask = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { title, description, documentLink, picId, requestDate, dueDate, priority, columnId, department, labels, boardId } = req.body;
+    const { title, description, documentLink, picId, requestDate, dueDate, priority, columnId, departmentId, labels, boardId } = req.body;
 
     const task = await prisma.task.create({
       data: {
@@ -36,7 +36,7 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
         dueDate: dueDate ? new Date(dueDate) : null,
         priority: priority || 'low',
         columnId: columnId || 'new',
-        department: department || req.user?.department || 'humas',
+        departmentId: departmentId || req.user?.departmentId,
         boardId: boardId,
         labels: labels ? {
           create: labels.map((labelId: string) => ({ labelId }))
@@ -59,7 +59,7 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
 export const updateTask = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { title, description, documentLink, picId, requestDate, dueDate, priority, columnId, department, position } = req.body;
+    const { title, description, documentLink, picId, requestDate, dueDate, priority, columnId, departmentId, position } = req.body;
 
     const task = await prisma.task.update({
       where: { id },
@@ -72,7 +72,7 @@ export const updateTask = async (req: AuthRequest, res: Response): Promise<void>
         ...(dueDate !== undefined && { dueDate: dueDate ? new Date(dueDate) : null }),
         ...(priority && { priority }),
         ...(columnId && { columnId }),
-        ...(department && { department }),
+        ...(departmentId && { departmentId }),
         ...(position !== undefined && { position }),
       },
       include: {

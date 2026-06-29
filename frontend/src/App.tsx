@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useKanban } from './store/kanbanStore';
 import { useAuthStore } from './store/authStore';
 import { Header } from './components/Header';
@@ -6,10 +6,22 @@ import { KanbanBoard } from './components/KanbanBoard';
 import { CalendarView } from './components/CalendarView';
 import { Dashboard } from './components/Dashboard';
 import { Login } from './pages/Login';
+import { MasterData } from './pages/MasterData';
 import './index.css';
 
 function MainContent() {
-  const { viewMode, fetchCards, isLoading, isDarkMode, activeBoardId } = useKanban();
+  const { viewMode, fetchCards, isLoading, isDarkMode, activeBoardId, fetchDepartments } = useKanban();
+  const [currentHash, setCurrentHash] = useState(window.location.hash);
+
+  useEffect(() => {
+    fetchDepartments();
+  }, [fetchDepartments]);
+
+  useEffect(() => {
+    const handleHash = () => setCurrentHash(window.location.hash);
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   useEffect(() => {
     if (activeBoardId) {
@@ -28,7 +40,9 @@ function MainContent() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-bgPrimary text-textPrimary font-sans transition-colors duration-300">
       <Header />
-      {isLoading && activeBoardId ? (
+      {currentHash === '#master' ? (
+        <MasterData />
+      ) : isLoading && activeBoardId ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-textSecondary">Memuat tugas...</div>
         </div>

@@ -19,7 +19,7 @@ import { KanbanColumn } from './KanbanColumn';
 import { CardDragOverlay } from './KanbanCard';
 
 export function KanbanBoard() {
-  const { getFilteredCards, moveCard, reorderCards, activeDepartment } = useKanban();
+  const { getFilteredCards, moveCard, reorderCards } = useKanban();
   const [activeCard, setActiveCard] = useState<Card | null>(null);
 
   const sensors = useSensors(

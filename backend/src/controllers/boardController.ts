@@ -5,7 +5,7 @@ import { AuthRequest } from '../middleware/auth';
 export const getBoards = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
-    const department = req.user?.department;
+    const departmentId = req.user?.departmentId;
     
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -29,9 +29,9 @@ export const createBoard = async (req: AuthRequest, res: Response) => {
   try {
     const { title, description } = req.body;
     const userId = req.user?.id;
-    const department = req.user?.department;
+    const departmentId = req.user?.departmentId;
 
-    if (!userId || !department) {
+    if (!userId || !departmentId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
@@ -40,7 +40,7 @@ export const createBoard = async (req: AuthRequest, res: Response) => {
         title,
         description,
         userId,
-        department: department as any,
+        departmentId,
       },
     });
 
