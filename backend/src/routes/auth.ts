@@ -1,20 +1,11 @@
 import { Router } from 'express';
+import { authenticateToken } from '../middleware/auth';
+import { register, login, getMe } from '../controllers/authController';
 
 const router = Router();
 
-router.post('/register', async (req, res) => {
-  // TODO: Implement register
-  res.status(501).json({ message: 'Not implemented' });
-});
-
-router.post('/login', async (req, res) => {
-  // TODO: Implement login
-  res.status(501).json({ message: 'Not implemented' });
-});
-
-router.get('/me', async (req, res) => {
-  // TODO: Implement get current user
-  res.status(501).json({ message: 'Not implemented' });
-});
+router.post('/register', register);
+router.post('/login', login);
+router.get('/me', authenticateToken, getMe);
 
 export default router;

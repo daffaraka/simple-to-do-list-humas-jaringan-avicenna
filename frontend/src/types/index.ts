@@ -13,6 +13,7 @@ export interface CardLabel {
 }
 
 export type Department = 'humas' | 'jaringan';
+export type ActiveDepartmentType = Department | 'all';
 
 export interface Card {
   id: string;
