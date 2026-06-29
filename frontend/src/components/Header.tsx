@@ -15,7 +15,7 @@ export function Header() {
       <div className="px-6 py-4 flex items-center justify-between gap-4">
         {/* Logo */}
         <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-2 min-w-[200px]">
-          Humas & Jaringan
+          Time Pro IT & Branding
         </h1>
 
         {/* View Mode Switcher (Centered) */}
