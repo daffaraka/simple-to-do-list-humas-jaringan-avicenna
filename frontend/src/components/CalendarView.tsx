@@ -10,7 +10,8 @@ import {
   isSameMonth, 
   isSameDay, 
   addDays, 
-  parseISO 
+  parseISO,
+  getDay
 } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, CheckSquare } from 'lucide-react';
@@ -71,11 +72,13 @@ export function CalendarView() {
       days.push(
         <div
           key={day.toISOString()}
-          className={`flex-1 min-h-[100px] border-r border-b border-borderBase p-2 flex flex-col transition-colors ${
+          className={`flex-1 min-h-[60px] border-r border-b border-borderBase p-2 flex flex-col transition-colors ${
             !isSameMonth(day, monthStart)
               ? "bg-bgGlass text-textSecondary opacity-50"
               : isSameDay(day, new Date())
               ? "bg-indigo-500/10 text-indigo-500 dark:text-indigo-300"
+              : getDay(day) === 0
+              ? "bg-yellow-500/10 dark:bg-yellow-500/5 text-textPrimary hover:bg-yellow-500/20"
               : "bg-transparent text-textPrimary hover:bg-bgGlass"
           }`}
         >
@@ -120,7 +123,7 @@ export function CalendarView() {
       day = addDays(day, 1);
     }
     rows.push(
-      <div className="grid grid-cols-7 min-h-[120px]" key={day.toISOString()}>
+      <div className="grid grid-cols-7 min-h-[80px]" key={day.toISOString()}>
         {days}
       </div>
     );
@@ -129,7 +132,7 @@ export function CalendarView() {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-bgPrimary p-6 overflow-hidden transition-colors duration-300">
-      <div className="max-w-6xl w-full mx-auto flex flex-col h-full bg-bgSecondary border border-borderBase rounded-2xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/50">
+      <div className="w-full flex flex-col h-full bg-bgSecondary border border-borderBase rounded-2xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/50">
         
         {/* Calendar Header */}
         <div className="p-4 border-b border-borderBase flex items-center justify-between bg-bgGlass">
