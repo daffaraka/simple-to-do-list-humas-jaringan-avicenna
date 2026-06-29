@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,10 +8,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        bgPrimary: '#0f0a1e',
-        bgSecondary: '#1a1333',
-        bgGlass: 'rgba(255, 255, 255, 0.03)',
-        bgGlassHover: 'rgba(255, 255, 255, 0.06)',
+        bgPrimary: 'var(--bg-primary)',
+        bgSecondary: 'var(--bg-secondary)',
+        bgGlass: 'var(--bg-glass)',
+        bgGlassHover: 'var(--bg-glass-hover)',
+        textPrimary: 'var(--text-primary)',
+        textSecondary: 'var(--text-secondary)',
+        borderBase: 'var(--border-base)',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
