@@ -260,7 +260,8 @@ export const useKanban = create<KanbanState>()(
     partialize: (state) => ({ 
       isDarkMode: state.isDarkMode,
       viewMode: state.viewMode,
-      activeDepartment: state.activeDepartment
+      activeDepartment: state.activeDepartment,
+      activeBoardId: state.activeBoardId
     }),
     onRehydrateStorage: () => (state) => {
       if (state) {
