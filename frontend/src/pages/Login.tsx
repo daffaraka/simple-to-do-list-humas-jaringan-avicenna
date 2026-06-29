@@ -27,7 +27,7 @@ export function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-bgPrimary text-gray-200">
       <div className="bg-bgSecondary p-8 rounded-2xl shadow-xl w-full max-w-md border border-white/5">
-        <h1 className="text-2xl font-bold mb-6 text-center text-white">Login Humas & Jaringan</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Login Humas & Jaringan</h1>
         
         {error && (
           <div className="bg-red-500/20 text-red-200 p-3 rounded-lg mb-4 text-sm text-center border border-red-500/30">
@@ -37,10 +37,10 @@ export function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">Email</label>
             <input 
               type="email" 
-              className="w-full bg-black/20 border border-white/10 rounded-lg p-2.5 text-white focus:border-indigo-500 focus:outline-none transition-colors"
+              className="w-full border border-gray-300 border-white/10 rounded-lg p-2.5 text-white focus:border-indigo-500 focus:outline-none transition-colors"
               placeholder="user@kominfo.go.id"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -48,10 +48,10 @@ export function Login() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">Password</label>
             <input 
               type="password" 
-              className="w-full bg-black/20 border border-white/10 rounded-lg p-2.5 text-white focus:border-indigo-500 focus:outline-none transition-colors"
+              className="w-full border border-gray-300 border-white/10 rounded-lg p-2.5 text-white focus:border-indigo-500 focus:outline-none transition-colors"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
