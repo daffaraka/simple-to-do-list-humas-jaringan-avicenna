@@ -1,7 +1,18 @@
+import { useState, useEffect } from 'react';
 import { Search, Tag, Users, LayoutGrid, Calendar as CalendarIcon, LogOut, Sun, Moon, Layers, ArrowLeft } from 'lucide-react';
 import { AVAILABLE_LABELS } from '../types';
 import { useKanban } from '../store/kanbanStore';
 import { useAuthStore } from '../store/authStore';
+
+function useHash() {
+  const [hash, setHash] = useState(window.location.hash);
+  useEffect(() => {
+    const handler = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', handler);
+    return () => window.removeEventListener('hashchange', handler);
+  }, []);
+  return hash;
+}
 
 export function Header() {
   const { searchQuery, setSearchQuery, filterLabel, setFilterLabel, activeDepartment, setActiveDepartment, viewMode, setViewMode, isDarkMode, toggleDarkMode, activeBoardId, setActiveBoardId, boards, departments } = useKanban();
@@ -9,6 +20,8 @@ export function Header() {
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role?.name?.toLowerCase() === 'admin';
+  const hash = useHash();
+  const isMasterData = hash === '#master';
 
   return (
     <header className="bg-bgSecondary/80 backdrop-blur-md border-b border-borderBase sticky top-0 z-20 flex flex-col transition-colors duration-300">
@@ -64,16 +77,25 @@ export function Header() {
         </div>
         )}
 
-        {/* Master Data Button (Admin Only) */}
-        {!activeBoardId && isAdmin && (
-          <div className="hidden md:flex ml-auto mr-4">
+        {/* Main Tabs (Tasks / Master Data) */}
+        {!activeBoardId && (
+          <div className="hidden md:flex ml-auto mr-4 gap-2">
             <button
-              onClick={() => window.location.href = '#master'} // or setup proper routing later
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 rounded-lg text-sm font-medium transition-colors border border-indigo-500/30"
+              onClick={() => window.location.hash = ''} 
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${!isMasterData ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' : 'text-textSecondary border-transparent hover:bg-bgGlass'}`}
             >
-              <Users size={16} />
-              Master Data
+              <LayoutGrid size={16} />
+              Tasks
             </button>
+            {isAdmin && (
+              <button
+                onClick={() => window.location.hash = '#master'} 
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${isMasterData ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' : 'text-textSecondary border-transparent hover:bg-bgGlass'}`}
+              >
+                <Users size={16} />
+                Master Data
+              </button>
+            )}
           </div>
         )}
 
@@ -117,34 +139,46 @@ export function Header() {
       </div>
 
       {/* Sub Nav */}
+      {!isMasterData && (
       <div className="px-6 py-3 bg-bgGlass border-t border-borderBase flex items-center justify-between transition-colors duration-300">
-        {/* Department Switcher */}
-        <div className="flex bg-bgGlass rounded-lg p-1 border border-borderBase overflow-x-auto max-w-full custom-scrollbar">
-          <button
-            onClick={() => setActiveDepartment('all')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-              activeDepartment === 'all' 
-                ? 'bg-blue-500/20 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)] dark:text-blue-300' 
-                : 'text-textSecondary hover:text-textPrimary hover:bg-bgGlassHover'
-            }`}
-          >
-            <Layers size={16} />
-            Semua
-          </button>
-          {departments.map((dept) => (
-            <button
-              key={dept.id}
-              onClick={() => setActiveDepartment(dept.id)}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                activeDepartment === dept.id
-                  ? 'bg-indigo-500/20 text-indigo-600 shadow-[0_0_10px_rgba(99,102,241,0.2)] dark:text-indigo-300' 
-                  : 'text-textSecondary hover:text-textPrimary hover:bg-bgGlassHover'
-              }`}
-            >
-              <Users size={16} />
-              {dept.name}
-            </button>
-          ))}
+        {/* Department Switcher & Project Name */}
+        <div className="flex items-center gap-4">
+          {isAdmin && (
+            <div className="flex bg-bgGlass rounded-lg p-1 border border-borderBase overflow-x-auto max-w-full custom-scrollbar">
+              <button
+                onClick={() => setActiveDepartment('all')}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                  activeDepartment === 'all' 
+                    ? 'bg-blue-500/20 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)] dark:text-blue-300' 
+                    : 'text-textSecondary hover:text-textPrimary hover:bg-bgGlassHover'
+                }`}
+              >
+                <Layers size={16} />
+                Semua
+              </button>
+              {departments.map((dept) => (
+                <button
+                  key={dept.id}
+                  onClick={() => setActiveDepartment(dept.id)}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                    activeDepartment === dept.id
+                      ? 'bg-indigo-500/20 text-indigo-600 shadow-[0_0_10px_rgba(99,102,241,0.2)] dark:text-indigo-300' 
+                      : 'text-textSecondary hover:text-textPrimary hover:bg-bgGlassHover'
+                  }`}
+                >
+                  <Users size={16} />
+                  {dept.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!isAdmin && activeBoardId && (
+            <div className="flex items-center gap-2 px-4 py-1.5 bg-bgGlass border border-borderBase rounded-lg">
+              <Layers size={16} className="text-indigo-400" />
+              <span className="text-sm font-medium text-textPrimary">{activeBoard?.title}</span>
+            </div>
+          )}
         </div>
 
         {/* Label Filter (Moved to Sub Nav for balance) - Only show if in board */}
@@ -191,6 +225,7 @@ export function Header() {
           <div /> /* Empty div to keep flex alignment */
         )}
       </div>
+      )}
     </header>
   );
 }

@@ -14,7 +14,7 @@ import {
   getDay
 } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useKanban } from '../store/kanbanStore';
 import { CardModal } from './CardModal';
 import type { Card } from '../types';
