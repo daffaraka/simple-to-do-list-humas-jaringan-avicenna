@@ -312,22 +312,33 @@ export function CardModal({ card, onClose }: CardModalProps) {
               />
             </div>
 
-            {/* Delete Button */}
-            <div className="pt-4 border-t border-borderBase">
-              <button
-                onClick={() => {
-                  if (confirm('Hapus tugas ini?')) {
-                    deleteCard(card.id);
-                  }
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm font-medium transition-colors"
-              >
-                <Trash2 size={16} />
-                Hapus Tugas
-              </button>
-            </div>
-            
           </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 sm:p-5 border-t border-borderBase bg-bgGlass flex gap-3 shrink-0">
+          <button
+            onClick={() => {
+              handleSave();
+              onClose();
+            }}
+            className="flex-[8] flex items-center justify-center gap-2 py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20"
+          >
+            Simpan
+          </button>
+          <button
+            onClick={() => {
+              if (confirm('Hapus tugas ini?')) {
+                deleteCard(card.id);
+                // No need to onClose manually here if the component unmounts, but good practice
+              }
+            }}
+            className="flex-[2] flex items-center justify-center py-2 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm font-medium transition-colors"
+            title="Hapus Tugas"
+          >
+            <Trash2 size={16} />
+            <span className="hidden sm:inline ml-2">Hapus</span>
+          </button>
         </div>
       </div>
     </div>,
