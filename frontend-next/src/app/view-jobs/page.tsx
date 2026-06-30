@@ -39,14 +39,15 @@ export default function ViewJobsPage() {
     }));
   };
 
-  // Professional muted colors for avatars
+  // Professional soft Tailwind colors for avatars
   const getAvatarColor = (name: string) => {
     const colors = [
-      'bg-slate-800 text-slate-50',
-      'bg-zinc-800 text-zinc-50',
-      'bg-neutral-800 text-neutral-50',
-      'bg-stone-800 text-stone-50',
-      'bg-indigo-900 text-indigo-50'
+      'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300',
+      'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+      'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+      'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300',
+      'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300',
+      'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300'
     ];
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
@@ -56,9 +57,9 @@ export default function ViewJobsPage() {
   };
 
   const priorityColors = {
-    low: 'bg-gray-500 text-white font-bold shadow-sm',
-    medium: 'bg-indigo-600 text-white font-bold shadow-sm',
-    high: 'bg-rose-600 text-white font-bold shadow-sm',
+    low: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 font-bold',
+    medium: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 font-bold',
+    high: 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300 font-bold',
   };
 
   return (
@@ -97,6 +98,10 @@ export default function ViewJobsPage() {
               ? (nameParts[0][0] + nameParts[1][0]).toUpperCase() 
               : picName.substring(0, 2).toUpperCase();
             
+            const picObj = typeof picCards[0].pic === 'object' && picCards[0].pic !== null ? (picCards[0].pic as any) : null;
+            const roleName = picObj?.role?.name;
+            const departmentName = picObj?.department?.name;
+
             // Calculate stats
             const totalJobs = picCards.length;
             const todoCount = picCards.filter(c => c.columnId === 'new').length;
@@ -113,22 +118,28 @@ export default function ViewJobsPage() {
                   onClick={() => toggleExpand(picName)}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 shrink-0 rounded-2xl ${getAvatarColor(picName)} flex items-center justify-center text-lg font-bold shadow-sm ring-1 ring-black/5 dark:ring-white/10 transform group-hover:scale-105 transition-transform duration-300`}>
+                    <div className={`w-12 h-12 shrink-0 rounded-2xl ${getAvatarColor(picName)} flex items-center justify-center text-lg font-bold transform group-hover:scale-105 transition-transform duration-300`}>
                       {picInitials}
                     </div>
                     <div>
                       <h2 className="text-lg font-bold text-textPrimary group-hover:text-indigo-600 transition-colors">{picName}</h2>
-                      <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                        <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-md bg-slate-800 text-white shadow-sm border border-slate-900">
+                      {(roleName || departmentName) && (
+                        <div className="flex flex-col text-[13px] text-textSecondary mt-0.5 mb-2 gap-0.5">
+                          {roleName && <span className="font-semibold">{roleName}</span>}
+                          {departmentName && <span>{departmentName}</span>}
+                        </div>
+                      )}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-500/20">
                           Total: {totalJobs}
                         </span>
-                        <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-md bg-slate-500 text-white shadow-sm border border-slate-600">
+                        <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 border border-blue-500/20">
                           To Do: {todoCount}
                         </span>
-                        <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-md bg-indigo-600 text-white shadow-sm border border-indigo-700">
+                        <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-500/20">
                           Progress: {progressCount}
                         </span>
-                        <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-md bg-emerald-600 text-white shadow-sm border border-emerald-700">
+                        <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-500/20">
                           Done: {doneCount}
                         </span>
                       </div>
@@ -173,34 +184,28 @@ export default function ViewJobsPage() {
                             </div>
                           </div>
 
-                          {/* Task Meta Info */}
-                          <div className="flex flex-wrap items-center gap-4 mt-3">
+                          <div className="flex flex-wrap items-center gap-2 mt-3">
                             {checklist.length > 0 && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-textSecondary bg-black/5 dark:bg-white/5 px-2 py-1 rounded-md">
-                                <CheckSquare size={12} />
-                                <span>{completedChecklist}/{checklist.length}</span>
+                              <div className="text-[11px] font-semibold text-textSecondary bg-bgSecondary border border-borderBase px-2 py-1 rounded-md">
+                                {completedChecklist}/{checklist.length} Selesai
                               </div>
                             )}
                             {card.requestDate && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-textSecondary bg-indigo-500/5 px-2 py-1 rounded-md" title="Target Tanggal">
-                                <Calendar size={12} className="text-indigo-500" />
-                                <span>
-                                  {new Date(card.requestDate).toLocaleDateString('id-ID', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                  })}
-                                </span>
+                              <div className="text-[11px] font-semibold text-textSecondary bg-bgSecondary border border-borderBase px-2 py-1 rounded-md" title="Target Tanggal">
+                                <span className="text-textPrimary mr-1">Tgt:</span>
+                                {new Date(card.requestDate).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                })}
                               </div>
                             )}
                             {card.dueDate && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-textSecondary bg-emerald-500/5 px-2 py-1 rounded-md" title="Tanggal Selesai">
-                                <Calendar size={12} className="text-emerald-500" />
-                                <span>
-                                  {new Date(card.dueDate).toLocaleDateString('id-ID', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                  })}
-                                </span>
+                              <div className="text-[11px] font-semibold text-textSecondary bg-bgSecondary border border-borderBase px-2 py-1 rounded-md" title="Tanggal Selesai">
+                                <span className="text-textPrimary mr-1">Bts:</span>
+                                {new Date(card.dueDate).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                })}
                               </div>
                             )}
                           </div>

@@ -111,31 +111,26 @@ export function KanbanCard({ card, isOverlay }: KanbanCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 flex-wrap">
             {checklist.length > 0 && (
-              <div className="flex items-center gap-1.5 text-xs text-textSecondary">
-                <CheckSquare size={14} />
-                <span>{completedChecklist}/{checklist.length}</span>
+              <div className="text-[11px] font-semibold text-textSecondary bg-bgSecondary border border-borderBase px-1.5 py-0.5 rounded">
+                {completedChecklist}/{checklist.length} Selesai
               </div>
             )}
             {card.requestDate && (
-              <div className="flex items-center gap-1 text-xs text-textSecondary" title="Target Tanggal">
-                <Calendar size={13} className="text-indigo-400" />
-                <span>
-                  {new Date(card.requestDate).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'short',
-                  })}
-                </span>
+              <div className="text-[11px] font-semibold text-textSecondary bg-bgSecondary border border-borderBase px-1.5 py-0.5 rounded" title="Target Tanggal">
+                <span className="text-textPrimary mr-1">Tgt:</span>
+                {new Date(card.requestDate).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'short',
+                })}
               </div>
             )}
             {card.dueDate && (
-              <div className="flex items-center gap-1 text-xs text-textSecondary" title="Tanggal Selesai">
-                <Calendar size={13} className="text-emerald-400" />
-                <span>
-                  {new Date(card.dueDate).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'short',
-                  })}
-                </span>
+              <div className="text-[11px] font-semibold text-textSecondary bg-bgSecondary border border-borderBase px-1.5 py-0.5 rounded" title="Tanggal Selesai">
+                <span className="text-textPrimary mr-1">Bts:</span>
+                {new Date(card.dueDate).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'short',
+                })}
               </div>
             )}
           </div>

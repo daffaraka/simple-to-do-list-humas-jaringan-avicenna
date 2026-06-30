@@ -14,23 +14,23 @@
 
 @layer base {
   :root {
-    --bg-primary: #f9fafb;
+    --bg-primary: #fafafa;
     --bg-secondary: #ffffff;
     --bg-glass: rgba(0, 0, 0, 0.03);
     --bg-glass-hover: rgba(0, 0, 0, 0.06);
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --border-base: rgba(0, 0, 0, 0.1);
+    --text-primary: #09090b;
+    --text-secondary: #71717a;
+    --border-base: #e4e4e7;
   }
 
   .dark {
-    --bg-primary: #0f0a1e;
-    --bg-secondary: #1a1333;
+    --bg-primary: #09090b;
+    --bg-secondary: #18181b;
     --bg-glass: rgba(255, 255, 255, 0.03);
     --bg-glass-hover: rgba(255, 255, 255, 0.06);
-    --text-primary: #e5e7eb;
-    --text-secondary: #9ca3af;
-    --border-base: rgba(255, 255, 255, 0.1);
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --border-base: #27272a;
   }
 
   body {

@@ -68,45 +68,40 @@ export function Header() {
         <div className="hidden md:flex flex-1 mx-2 lg:mx-4 gap-2 xl:gap-3 overflow-x-auto no-scrollbar items-center justify-center">
           <Link
             href="/kpi"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border whitespace-nowrap ${pathname === "/kpi" ? "bg-indigo-600/20 text-indigo-400 border-indigo-500/30" : "text-textSecondary border-transparent hover:bg-bgGlass"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${pathname === "/kpi" ? "bg-bgGlass text-textPrimary" : "text-textSecondary hover:text-textPrimary hover:bg-bgGlass/50"}`}
             title="Dashboard KPI"
           >
-            <Target size={16} className="shrink-0" />
-            <span className="hidden xl:block">Dashboard KPI</span>
+            Dashboard KPI
           </Link>
           <Link
             href="/jobs"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border whitespace-nowrap ${pathname === "/jobs" || pathname.startsWith("/board/") || pathname === "/" ? "bg-indigo-600/20 text-indigo-400 border-indigo-500/30" : "text-textSecondary border-transparent hover:bg-bgGlass"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${pathname === "/jobs" || pathname.startsWith("/board/") || pathname === "/" ? "bg-bgGlass text-textPrimary" : "text-textSecondary hover:text-textPrimary hover:bg-bgGlass/50"}`}
             title="Pekerjaan Saya"
           >
-            <Briefcase size={16} className="shrink-0" />
-            <span className="hidden xl:block">Pekerjaan Saya</span>
+            Pekerjaan Saya
           </Link>
           <Link
             href="/view-jobs"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border whitespace-nowrap ${pathname === "/view-jobs" ? "bg-indigo-600/20 text-indigo-400 border-indigo-500/30" : "text-textSecondary border-transparent hover:bg-bgGlass"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${pathname === "/view-jobs" ? "bg-bgGlass text-textPrimary" : "text-textSecondary hover:text-textPrimary hover:bg-bgGlass/50"}`}
             title="View Jobs"
           >
-            <Layers size={16} className="shrink-0" />
-            <span className="hidden xl:block">View Jobs</span>
+            View Jobs
           </Link>
           <Link
             href="/calendar"
             onClick={() => setActiveBoardId(null)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border whitespace-nowrap ${pathname === "/calendar" ? "bg-indigo-600/20 text-indigo-400 border-indigo-500/30" : "text-textSecondary border-transparent hover:bg-bgGlass"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${pathname === "/calendar" ? "bg-bgGlass text-textPrimary" : "text-textSecondary hover:text-textPrimary hover:bg-bgGlass/50"}`}
             title="Kalender"
           >
-            <CalendarIcon size={16} className="shrink-0" />
-            <span className="hidden xl:block">Kalender</span>
+            Kalender
           </Link>
           {isAdmin && (
             <Link
               href="/master"
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border whitespace-nowrap ${isMasterData ? "bg-indigo-600/20 text-indigo-400 border-indigo-500/30" : "text-textSecondary border-transparent hover:bg-bgGlass"}`}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${isMasterData ? "bg-bgGlass text-textPrimary" : "text-textSecondary hover:text-textPrimary hover:bg-bgGlass/50"}`}
               title="Master Data"
             >
-              <Users size={16} className="shrink-0" />
-              <span className="hidden xl:block">Master Data</span>
+              Master Data
             </Link>
           )}
         </div>

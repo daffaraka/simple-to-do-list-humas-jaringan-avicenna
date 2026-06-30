@@ -9,7 +9,7 @@ export const getTasks = async (req: AuthRequest, res: Response): Promise<void> =
     const tasks = await prisma.task.findMany({
       where: boardId ? { boardId: boardId as string } : {},
       include: {
-        pic: { select: { name: true, email: true } },
+        pic: { select: { name: true, email: true, role: { select: { name: true } }, department: { select: { name: true } } } },
         checklists: true,
         labels: true,
       },
@@ -43,7 +43,7 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
         } : undefined
       },
       include: {
-        pic: { select: { name: true, email: true } },
+        pic: { select: { name: true, email: true, role: { select: { name: true } }, department: { select: { name: true } } } },
         checklists: true,
         labels: true,
       }
@@ -76,7 +76,7 @@ export const updateTask = async (req: AuthRequest, res: Response): Promise<void>
         ...(position !== undefined && { position }),
       },
       include: {
-        pic: { select: { name: true, email: true } },
+        pic: { select: { name: true, email: true, role: { select: { name: true } }, department: { select: { name: true } } } },
         checklists: true,
         labels: true,
       }
@@ -139,7 +139,7 @@ export const getMyJobs = async (req: AuthRequest, res: Response): Promise<void> 
     const tasks = await prisma.task.findMany({
       where: { picId: userId },
       include: {
-        pic: { select: { name: true, email: true } },
+        pic: { select: { name: true, email: true, role: { select: { name: true } }, department: { select: { name: true } } } },
         checklists: true,
         labels: true,
         board: { select: { title: true, kpi: { select: { title: true } } } }
