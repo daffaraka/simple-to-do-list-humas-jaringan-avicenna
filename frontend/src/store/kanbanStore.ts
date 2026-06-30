@@ -10,6 +10,7 @@ interface KanbanState {
   boards: Board[];
   activeBoardId: string | null;
   cards: Card[];
+  myJobs: Card[];
   searchQuery: string;
   filterLabel: string | null;
   activeDepartment: ActiveDepartmentType;
@@ -23,6 +24,7 @@ interface KanbanState {
   createBoard: (title: string, description?: string) => Promise<void>;
   setActiveBoardId: (boardId: string | null) => void;
   fetchCards: (boardId: string) => Promise<void>;
+  fetchMyJobs: () => Promise<void>;
   addCard: (title: string, columnId: ColumnId, extraData?: Partial<Card>) => Promise<void>;
   updateCard: (id: string, updates: Partial<Card>) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
@@ -43,6 +45,7 @@ export const useKanban = create<KanbanState>()(
       boards: [],
       activeBoardId: null,
       cards: [],
+      myJobs: [],
       searchQuery: '',
       filterLabel: null,
       activeDepartment: 'all',
@@ -91,6 +94,16 @@ export const useKanban = create<KanbanState>()(
     try {
       const response = await api.get(`/tasks?boardId=${boardId}`);
       set({ cards: response.data, isLoading: false });
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+    }
+  },
+
+  fetchMyJobs: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.get('/tasks/my-jobs');
+      set({ myJobs: response.data, isLoading: false });
     } catch (err: any) {
       set({ error: err.message, isLoading: false });
     }

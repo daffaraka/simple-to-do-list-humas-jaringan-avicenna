@@ -11,10 +11,13 @@ async function main() {
   const hashedPassword = await bcrypt.hash('password', 10);
 
   // Clear existing data
+  await prisma.notification.deleteMany({});
+  await prisma.comment.deleteMany({});
   await prisma.checklist.deleteMany({});
   await prisma.taskLabel.deleteMany({});
   await prisma.task.deleteMany({});
   await prisma.board.deleteMany({});
+  await prisma.kpi.deleteMany({});
   await prisma.user.deleteMany({});
   await prisma.role.deleteMany({});
   await prisma.department.deleteMany({});
@@ -61,57 +64,82 @@ async function main() {
     console.log(`Seeded user: ${user.name}`);
   }
 
-  // Seed Tasks (5 per user)
-  const columns = ['new', 'progress', 'done'] as const;
-  const priorities = ['low', 'medium', 'high'] as const;
+  // 4. Seed Real KPIs
+  const kpiData = [
+    // KPI HUMAS
+    {
+      title: 'Peningkatan Engagement Sosial Media',
+      description: 'Meningkatkan interaksi dan pengikut di Instagram, Facebook, dan platform sosial media lainnya sebesar 30%.',
+      department: 'humas',
+      targetDate: new Date('2026-12-31T00:00:00Z'),
+    },
+    {
+      title: 'Publikasi Layanan & Event Baru',
+      description: 'Memastikan setiap layanan baru dan event perusahaan dipublikasikan tepat waktu di semua kanal komunikasi.',
+      department: 'humas',
+      targetDate: new Date('2026-08-31T00:00:00Z'),
+    },
+    {
+      title: 'Manajemen Komplain & Kepuasan Pelanggan',
+      description: 'Menangani komplain dengan SLA di bawah 24 jam dan meningkatkan skor kepuasan pelanggan.',
+      department: 'humas',
+      targetDate: new Date('2026-10-31T00:00:00Z'),
+    },
+    {
+      title: 'Program CSR (Corporate Social Responsibility)',
+      description: 'Menyelenggarakan minimal 3 program CSR berdampak positif bagi lingkungan sekitar pada tahun ini.',
+      department: 'humas',
+      targetDate: new Date('2026-12-31T00:00:00Z'),
+    },
+    // KPI JARINGAN
+    {
+      title: 'Pencapaian SLA Jaringan 99.9%',
+      description: 'Memastikan ketersediaan dan uptime jaringan di seluruh cabang (Jagakarsa, Cinere, Pamulang) mencapai 99.9%.',
+      department: 'jaringan',
+      targetDate: new Date('2026-12-31T00:00:00Z'),
+    },
+    {
+      title: 'Implementasi Sistem Keamanan Jaringan',
+      description: 'Penerapan firewall baru dan audit keamanan jaringan secara menyeluruh untuk mencegah peretasan.',
+      department: 'jaringan',
+      targetDate: new Date('2026-09-30T00:00:00Z'),
+    },
+    {
+      title: 'Upgrade Infrastruktur & Bandwidth',
+      description: 'Melakukan peremajaan perangkat router/switch dan peningkatan kapasitas bandwidth di cabang padat.',
+      department: 'jaringan',
+      targetDate: new Date('2026-07-31T00:00:00Z'),
+    },
+    {
+      title: 'Maintenance Server Rutin',
+      description: 'Melakukan pemeliharaan server fisik dan virtual (backup, patching, cleaning) secara berkala tiap bulan.',
+      department: 'jaringan',
+      targetDate: new Date('2026-12-31T00:00:00Z'),
+    }
+  ];
 
-  const startDate = new Date('2026-06-15T00:00:00Z');
+  let kpiCount = 0;
+  for (const k of kpiData) {
+    // Find a random user in that department to assign as PIC for the KPI
+    const deptUsers = dbUsers.filter(u => u.departmentId === getDept(k.department));
+    if (deptUsers.length === 0) continue;
+    
+    // Assign to a random user from the department
+    const assignedUser = deptUsers[Math.floor(Math.random() * deptUsers.length)];
 
-  let taskCount = 0;
-  for (const user of dbUsers) {
-    // Create a default board for this user
-    const board = await prisma.board.create({
+    await prisma.kpi.create({
       data: {
-        title: `Proyek Utama ${user.name.split(' ')[0]}`,
-        description: `Board default untuk ${user.name}`,
-        userId: user.id,
-        departmentId: user.departmentId,
+        title: k.title,
+        description: k.description,
+        userId: assignedUser.id,
+        departmentId: getDept(k.department),
+        targetDate: k.targetDate,
       }
     });
-
-    for (let i = 1; i <= 5; i++) {
-      const requestDate = randomDate(startDate, new Date('2026-06-25T00:00:00Z'));
-      const dueDate = new Date(requestDate);
-      dueDate.setDate(dueDate.getDate() + Math.floor(Math.random() * 14) + 2);
-
-      const columnId = columns[Math.floor(Math.random() * columns.length)];
-      const priority = priorities[Math.floor(Math.random() * priorities.length)];
-
-      await prisma.task.create({
-        data: {
-          title: `Tugas ${i} untuk ${user.name.split(' ')[0]}`,
-          description: `Ini adalah deskripsi otomatis untuk tugas ${i}. Tolong diselesaikan sebelum tenggat waktu.`,
-          picId: user.id,
-          departmentId: user.departmentId,
-          requestDate,
-          dueDate,
-          priority,
-          columnId,
-          boardId: board.id,
-          position: i,
-          checklists: {
-            create: [
-              { text: 'Langkah pertama', completed: Math.random() > 0.5 },
-              { text: 'Langkah kedua', completed: Math.random() > 0.5 },
-            ]
-          }
-        }
-      });
-      taskCount++;
-    }
+    kpiCount++;
   }
 
-  console.log(`Seeded ${taskCount} tasks successfully`);
+  console.log(`Seeded ${kpiCount} realistic KPIs successfully. Tasks and Boards skipped as requested.`);
 }
 
 main()

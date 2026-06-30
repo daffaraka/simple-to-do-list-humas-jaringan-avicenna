@@ -7,6 +7,8 @@ import { CalendarView } from './components/CalendarView';
 import { Dashboard } from './components/Dashboard';
 import { Login } from './pages/Login';
 import { MasterData } from './pages/MasterData';
+import { JobsView } from './pages/JobsView';
+import { KpiDashboard } from './pages/KpiDashboard';
 import './index.css';
 
 function MainContent() {
@@ -42,6 +44,10 @@ function MainContent() {
       <Header />
       {currentHash === '#master' ? (
         <MasterData />
+      ) : currentHash === '#jobs' ? (
+        <JobsView />
+      ) : currentHash === '#kpi' ? (
+        <KpiDashboard />
       ) : isLoading && activeBoardId ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-textSecondary">Memuat tugas...</div>

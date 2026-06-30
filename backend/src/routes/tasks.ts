@@ -1,10 +1,12 @@
-import { Router } from 'express';
+import express from 'express';
+import { getTasks, createTask, updateTask, deleteTask, toggleLabel, getMyJobs } from '../controllers/taskController';
 import { authenticateToken } from '../middleware/auth';
-import { getTasks, createTask, updateTask, deleteTask, toggleLabel } from '../controllers/taskController';
 
-const router = Router();
-router.use(authenticateToken); // Protect all task routes
+const router = express.Router();
 
+router.use(authenticateToken);
+
+router.get('/my-jobs', getMyJobs);
 router.get('/', getTasks);
 router.post('/', createTask);
 router.patch('/:id', updateTask);

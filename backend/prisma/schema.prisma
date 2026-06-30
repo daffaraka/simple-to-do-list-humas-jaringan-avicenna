@@ -13,6 +13,7 @@ model Department {
   users     User[]
   boards    Board[]
   tasks     Task[]
+  kpis      Kpi[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -49,8 +50,11 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
-  tasks      Task[]     @relation("PicTasks")
-  boards     Board[]    @relation("UserBoards")
+  tasks      Task[]         @relation("PicTasks")
+  boards     Board[]        @relation("UserBoards")
+  kpis       Kpi[]          @relation("UserKpis")
+  comments   Comment[]
+  notifications Notification[]
 }
 
 model Task {
@@ -76,6 +80,7 @@ model Task {
 
   checklists   Checklist[]
   labels       TaskLabel[]
+  comments     Comment[]
 }
 
 model Checklist {
@@ -103,9 +108,48 @@ model Board {
   user         User        @relation("UserBoards", fields: [userId], references: [id])
   departmentId String
   department   Department  @relation(fields: [departmentId], references: [id])
+  kpiId        String?
+  kpi          Kpi?        @relation(fields: [kpiId], references: [id], onDelete: SetNull)
   
   createdAt    DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
   tasks       Task[]
+}
+
+model Kpi {
+  id           String      @id @default(uuid())
+  title        String
+  description  String?     @db.Text
+  departmentId String
+  department   Department  @relation(fields: [departmentId], references: [id])
+  userId       String
+  user         User        @relation("UserKpis", fields: [userId], references: [id])
+  targetDate   DateTime
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  
+  boards       Board[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  link      String?  
+  createdAt DateTime @default(now())
 }

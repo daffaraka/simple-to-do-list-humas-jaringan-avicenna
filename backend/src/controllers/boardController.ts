@@ -5,15 +5,21 @@ import { AuthRequest } from '../middleware/auth';
 export const getBoards = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
+    const userRole = req.user?.role?.name;
     const departmentId = req.user?.departmentId;
     
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    const whereClause = userRole === 'Admin' ? {} : { userId };
+
     const boards = await prisma.board.findMany({
-      where: {
-        userId: userId // "board di kerjakan oleh per user/orang"
+      where: whereClause,
+      include: {
+        user: true,
+        kpi: true,
+        tasks: true
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -27,7 +33,7 @@ export const getBoards = async (req: AuthRequest, res: Response) => {
 
 export const createBoard = async (req: AuthRequest, res: Response) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, kpiId } = req.body;
     const userId = req.user?.id;
     const departmentId = req.user?.departmentId;
 
@@ -41,7 +47,11 @@ export const createBoard = async (req: AuthRequest, res: Response) => {
         description,
         userId,
         departmentId,
+        kpiId,
       },
+      include: {
+        kpi: true
+      }
     });
 
     res.status(201).json(board);
@@ -55,16 +65,18 @@ export const updateBoard = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
-    const { title, description } = req.body;
+    const userRole = req.user?.role?.name;
+    const { title, description, kpiId } = req.body;
 
     // Check ownership
     const board = await prisma.board.findUnique({ where: { id } });
     if (!board) return res.status(404).json({ error: 'Board not found' });
-    if (board.userId !== userId) return res.status(403).json({ error: 'Forbidden' });
+    if (userRole !== 'Admin' && board.userId !== userId) return res.status(403).json({ error: 'Forbidden' });
 
     const updated = await prisma.board.update({
       where: { id },
-      data: { title, description },
+      data: { title, description, kpiId },
+      include: { kpi: true }
     });
 
     res.json(updated);
@@ -78,10 +90,11 @@ export const deleteBoard = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
+    const userRole = req.user?.role?.name;
 
     const board = await prisma.board.findUnique({ where: { id } });
     if (!board) return res.status(404).json({ error: 'Board not found' });
-    if (board.userId !== userId) return res.status(403).json({ error: 'Forbidden' });
+    if (userRole !== 'Admin' && board.userId !== userId) return res.status(403).json({ error: 'Forbidden' });
 
     await prisma.board.delete({ where: { id } });
 

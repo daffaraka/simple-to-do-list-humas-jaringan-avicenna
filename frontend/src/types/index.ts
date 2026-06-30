@@ -31,8 +31,11 @@ export interface Board {
   userId: string;
   departmentId: string;
   department?: Department;
+  kpiId?: string | null;
+  kpi?: Kpi;
   createdAt: string;
   updatedAt: string;
+  tasks?: Card[];
 }
 
 export interface Card {
@@ -73,6 +76,39 @@ export const AVAILABLE_LABELS: CardLabel[] = [
   { id: 'l4', name: 'Documentation', color: '#06b6d4' },
   { id: 'l5', name: 'Design', color: '#ec4899' },
   { id: 'l6', name: 'Urgent', color: '#f59e0b' },
-  { id: 'l7', name: 'Backend', color: '#10b981' },
   { id: 'l8', name: 'Frontend', color: '#3b82f6' },
 ];
+
+export interface Kpi {
+  id: string;
+  title: string;
+  description: string | null;
+  departmentId: string;
+  department?: Department;
+  userId: string;
+  user?: { id: string; name: string };
+  targetDate: string;
+  createdAt: string;
+  updatedAt: string;
+  boards?: Board[];
+}
+
+export interface Comment {
+  id: string;
+  taskId: string;
+  userId: string;
+  user?: { id: string; name: string; role?: Role };
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  read: boolean;
+  link: string | null;
+  createdAt: string;
+}

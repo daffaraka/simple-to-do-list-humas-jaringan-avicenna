@@ -7,7 +7,10 @@ import {
 import { COLUMNS, AVAILABLE_LABELS } from '../types';
 import type { Card, ColumnId } from '../types';
 import { useKanban } from '../store/kanbanStore';
+import { useAuthStore } from '../store/authStore';
 import { v4 as uuidv4 } from 'uuid';
+import api from '../lib/api';
+import type { Comment } from '../types';
 
 interface CardModalProps {
   card: Card;
@@ -19,6 +22,62 @@ export function CardModal({ card, onClose }: CardModalProps) {
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description);
   const [newChecklistText, setNewChecklistText] = useState('');
+  
+  const [activeTab, setActiveTab] = useState<'details' | 'comments'>('details');
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [mentions, setMentions] = useState<string[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [showMentionDropdown, setShowMentionDropdown] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+
+  const currentUser = useAuthStore(state => state.user);
+
+  useEffect(() => {
+    if (activeTab === 'comments') {
+      api.get(`/tasks/${card.id}/comments`).then(res => setComments(res.data)).catch(console.error);
+      api.get('/users').then(res => setUsers(res.data)).catch(console.error);
+    }
+  }, [activeTab, card.id]);
+
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim()) return;
+    try {
+      const res = await api.post(`/tasks/${card.id}/comments`, {
+        text: newComment,
+        mentions
+      });
+      setComments([...comments, res.data]);
+      setNewComment('');
+      setMentions([]);
+    } catch (error) {
+      console.error('Failed to post comment', error);
+    }
+  };
+
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setNewComment(val);
+    
+    const lastWord = val.split(' ').pop() || '';
+    if (lastWord.startsWith('@')) {
+      setMentionQuery(lastWord.slice(1).toLowerCase());
+      setShowMentionDropdown(true);
+    } else {
+      setShowMentionDropdown(false);
+    }
+  };
+
+  const handleMentionSelect = (user: any) => {
+    const words = newComment.split(' ');
+    words.pop();
+    const newText = (words.length > 0 ? words.join(' ') + ' ' : '') + `@${user.name} `;
+    setNewComment(newText);
+    if (!mentions.includes(user.id)) {
+      setMentions([...mentions, user.id]);
+    }
+    setShowMentionDropdown(false);
+  };
 
   const checklist = card.checklist || [];
   const labels = card.labels || [];
@@ -101,13 +160,31 @@ export function CardModal({ card, onClose }: CardModalProps) {
           </button>
         </div>
 
+        {/* Tabs */}
+        <div className="flex border-b border-borderBase px-4 sm:px-5">
+          <button
+            onClick={() => setActiveTab('details')}
+            className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'details' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-textSecondary hover:text-textPrimary'}`}
+          >
+            Detail Tugas
+          </button>
+          <button
+            onClick={() => setActiveTab('comments')}
+            className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'comments' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-textSecondary hover:text-textPrimary'}`}
+          >
+            Komentar
+          </button>
+        </div>
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 flex flex-col md:flex-row gap-6 sm:gap-8">
           
           {/* Left Column - Main Info */}
           <div className="flex-1 space-y-5 sm:space-y-6">
-            <div>
-              <h4 className="text-sm font-medium text-textSecondary mb-2">Deskripsi</h4>
+            {activeTab === 'details' ? (
+              <>
+                <div>
+                  <h4 className="text-sm font-medium text-textSecondary mb-2">Deskripsi</h4>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -225,6 +302,65 @@ export function CardModal({ card, onClose }: CardModalProps) {
                 </button>
               </div>
             </div>
+            </>
+            ) : (
+              <div className="flex flex-col h-full space-y-4">
+                <div className="flex-1 overflow-y-auto space-y-4 min-h-[300px]">
+                  {comments.length === 0 ? (
+                    <p className="text-textSecondary text-sm text-center py-8">Belum ada komentar.</p>
+                  ) : (
+                    comments.map(comment => (
+                      <div key={comment.id} className="flex gap-3">
+                        <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold shrink-0">
+                          {comment.user?.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-semibold text-textPrimary text-sm">{comment.user?.name}</span>
+                            <span className="text-xs text-textSecondary">{new Date(comment.createdAt).toLocaleString('id-ID')}</span>
+                          </div>
+                          <p className="text-sm text-textPrimary mt-1 whitespace-pre-wrap">{comment.text}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+                
+                <div className="relative pt-4 border-t border-borderBase">
+                  {showMentionDropdown && (
+                    <div className="absolute bottom-full left-0 mb-1 w-full sm:w-64 bg-bgSecondary border border-borderBase rounded-lg shadow-xl overflow-hidden z-50">
+                      {users.filter(u => u.name.toLowerCase().includes(mentionQuery)).map(u => (
+                        <button
+                          key={u.id}
+                          onClick={() => handleMentionSelect(u)}
+                          className="w-full text-left px-4 py-2 text-sm text-textPrimary hover:bg-bgGlass transition-colors flex items-center gap-2"
+                        >
+                          <div className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs shrink-0">
+                            {u.name.charAt(0).toUpperCase()}
+                          </div>
+                          {u.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <textarea
+                    value={newComment}
+                    onChange={handleCommentChange}
+                    placeholder="Tulis komentar... Gunakan @ untuk menyebut seseorang."
+                    className="w-full bg-bgGlass border border-borderBase rounded-xl p-3 text-sm text-textPrimary min-h-[80px] focus:outline-none focus:border-indigo-500/50 resize-none"
+                  />
+                  <div className="flex justify-end mt-2">
+                    <button
+                      onClick={handleCommentSubmit}
+                      disabled={!newComment.trim()}
+                      className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                    >
+                      Kirim
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Sidebar */}

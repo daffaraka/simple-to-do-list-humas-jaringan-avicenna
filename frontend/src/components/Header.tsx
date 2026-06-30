@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Search, Tag, Users, LayoutGrid, Calendar as CalendarIcon, LogOut, Sun, Moon, Layers, ArrowLeft } from 'lucide-react';
+import { Search, Tag, Users, LayoutGrid, Calendar as CalendarIcon, LogOut, Sun, Moon, Layers, ArrowLeft, Target, Briefcase, Bell } from 'lucide-react';
 import { AVAILABLE_LABELS } from '../types';
 import { useKanban } from '../store/kanbanStore';
 import { useAuthStore } from '../store/authStore';
+import { useNotificationStore } from '../store/notificationStore';
 
 function useHash() {
   const [hash, setHash] = useState(window.location.hash);
@@ -22,6 +23,13 @@ export function Header() {
   const isAdmin = user?.role?.name?.toLowerCase() === 'admin';
   const hash = useHash();
   const isMasterData = hash === '#master';
+  
+  const { notifications, unreadCount, fetchNotifications, markAsRead } = useNotificationStore();
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   return (
     <header className="bg-bgSecondary/80 backdrop-blur-md border-b border-borderBase sticky top-0 z-20 flex flex-col transition-colors duration-300">
@@ -77,15 +85,29 @@ export function Header() {
         </div>
         )}
 
-        {/* Main Tabs (Tasks / Master Data) */}
+        {/* Main Tabs (Tasks / Master Data / KPI / Jobs) */}
         {!activeBoardId && (
           <div className="hidden md:flex ml-auto mr-4 gap-2">
             <button
+              onClick={() => window.location.hash = '#kpi'} 
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${hash === '#kpi' ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' : 'text-textSecondary border-transparent hover:bg-bgGlass'}`}
+            >
+              <Target size={16} />
+              Dashboard KPI
+            </button>
+            <button
+              onClick={() => window.location.hash = '#jobs'} 
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${hash === '#jobs' ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' : 'text-textSecondary border-transparent hover:bg-bgGlass'}`}
+            >
+              <Briefcase size={16} />
+              Pekerjaan Saya
+            </button>
+            <button
               onClick={() => window.location.hash = ''} 
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${!isMasterData ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' : 'text-textSecondary border-transparent hover:bg-bgGlass'}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${hash === '' ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' : 'text-textSecondary border-transparent hover:bg-bgGlass'}`}
             >
               <LayoutGrid size={16} />
-              Tasks
+              Proyek
             </button>
             {isAdmin && (
               <button
@@ -114,6 +136,65 @@ export function Header() {
           </div>
           )}
           
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="p-2 relative text-textSecondary hover:text-textPrimary hover:bg-bgGlass rounded-lg transition-colors"
+              title="Notifikasi"
+            >
+              <Bell size={18} />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-bgSecondary"></span>
+              )}
+            </button>
+            
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 bg-bgSecondary border border-borderBase rounded-xl shadow-xl z-50 overflow-hidden flex flex-col max-h-[400px]">
+                <div className="p-3 border-b border-borderBase flex justify-between items-center bg-bgGlass">
+                  <h3 className="font-semibold text-textPrimary text-sm">Notifikasi</h3>
+                  {unreadCount > 0 && (
+                    <button 
+                      onClick={() => markAsRead('all')}
+                      className="text-xs text-brand-500 hover:text-brand-400 transition-colors"
+                    >
+                      Tandai semua dibaca
+                    </button>
+                  )}
+                </div>
+                <div className="overflow-y-auto flex-1">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-textSecondary">Belum ada notifikasi</div>
+                  ) : (
+                    notifications.map(notif => (
+                      <div 
+                        key={notif.id} 
+                        className={`p-3 border-b border-borderBase/50 hover:bg-bgGlass cursor-pointer transition-colors ${notif.read ? 'opacity-70' : 'bg-brand-500/5'}`}
+                        onClick={() => {
+                          if (!notif.read) markAsRead(notif.id);
+                          if (notif.link) {
+                             const [path, query] = notif.link.split('?');
+                             window.location.hash = ''; // ensure it's not on another hash
+                             // Assuming we need to set active board and potentially open modal. This requires some advanced routing.
+                             // For simplicity we just open the board
+                             const boardIdMatch = path.match(/\/board\/([a-zA-Z0-9-]+)/);
+                             if (boardIdMatch) {
+                               setActiveBoardId(boardIdMatch[1]);
+                             }
+                             setShowNotifications(false);
+                          }
+                        }}
+                      >
+                        <h4 className={`text-sm ${notif.read ? 'font-medium text-textSecondary' : 'font-semibold text-textPrimary'}`}>{notif.title}</h4>
+                        <p className="text-xs text-textSecondary mt-1 line-clamp-2">{notif.message}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={toggleDarkMode}
             className="p-2 text-textSecondary hover:text-textPrimary hover:bg-bgGlass rounded-lg transition-colors"

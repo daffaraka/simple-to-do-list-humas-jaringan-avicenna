@@ -18,7 +18,7 @@ export const getTasks = async (req: AuthRequest, res: Response): Promise<void> =
     res.json(tasks);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+    res.status(500).json({ message: error instanceof Error ? error.message : String(error), error: process.env.NODE_ENV !== 'production' ? error : undefined });
   }
 };
 
@@ -31,12 +31,12 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
         title,
         description: description || '',
         documentLink,
-        picId,
+        picId: req.user?.id,
         requestDate: requestDate ? new Date(requestDate) : null,
         dueDate: dueDate ? new Date(dueDate) : null,
         priority: priority || 'low',
         columnId: columnId || 'new',
-        departmentId: departmentId || req.user?.departmentId,
+        departmentId: req.user?.departmentId!,
         boardId: boardId,
         labels: labels ? {
           create: labels.map((labelId: string) => ({ labelId }))
@@ -52,7 +52,7 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
     res.status(201).json(task);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+    res.status(500).json({ message: error instanceof Error ? error.message : String(error), error: process.env.NODE_ENV !== 'production' ? error : undefined });
   }
 };
 
@@ -85,7 +85,7 @@ export const updateTask = async (req: AuthRequest, res: Response): Promise<void>
     res.json(task);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+    res.status(500).json({ message: error instanceof Error ? error.message : String(error), error: process.env.NODE_ENV !== 'production' ? error : undefined });
   }
 };
 
@@ -96,7 +96,7 @@ export const deleteTask = async (req: AuthRequest, res: Response): Promise<void>
     res.json({ message: 'Tugas berhasil dihapus' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+    res.status(500).json({ message: error instanceof Error ? error.message : String(error), error: process.env.NODE_ENV !== 'production' ? error : undefined });
   }
 };
 
@@ -124,6 +124,31 @@ export const toggleLabel = async (req: AuthRequest, res: Response): Promise<void
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+    res.status(500).json({ message: error instanceof Error ? error.message : String(error), error: process.env.NODE_ENV !== 'production' ? error : undefined });
+  }
+};
+
+export const getMyJobs = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const tasks = await prisma.task.findMany({
+      where: { picId: userId },
+      include: {
+        pic: { select: { name: true, email: true } },
+        checklists: true,
+        labels: true,
+        board: { select: { title: true, kpi: { select: { title: true } } } }
+      },
+      orderBy: { requestDate: 'desc' },
+    });
+    res.json(tasks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error instanceof Error ? error.message : String(error), error: process.env.NODE_ENV !== 'production' ? error : undefined });
   }
 };

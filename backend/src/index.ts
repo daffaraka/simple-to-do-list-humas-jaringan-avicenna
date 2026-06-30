@@ -9,6 +9,9 @@ import boardRoutes from './routes/boards';
 import roleRoutes from './routes/roles';
 import departmentRoutes from './routes/departments';
 import userRoutes from './routes/users';
+import kpiRoutes from './routes/kpis';
+import commentRoutes from './routes/comments';
+import notificationRoutes from './routes/notifications';
 
 dotenv.config();
 
@@ -26,6 +29,9 @@ app.use('/api/boards', boardRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/kpis', kpiRoutes);
+app.use('/api/tasks/:taskId/comments', commentRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 const PORT = process.env.PORT || 3001;
 
