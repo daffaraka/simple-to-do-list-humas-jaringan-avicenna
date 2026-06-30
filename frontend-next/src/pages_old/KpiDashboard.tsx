@@ -281,7 +281,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({ viewType = 'me' }) =
                 <label className="block text-sm font-semibold text-textSecondary mb-2">Tanggal Target Pencapaian <span className="text-red-400">*</span></label>
                 <DatePicker
                   selected={formData.targetDate ? new Date(formData.targetDate) : null}
-                  onChange={(date) => setFormData({...formData, targetDate: date ? date.toISOString().split('T')[0] : ''})}
+                  onChange={(date: any) => setFormData({...formData, targetDate: date ? date.toISOString().split('T')[0] : ''})}
                   dateFormat="dd/MM/yyyy"
                   locale={dateFnsIdLocale}
                   placeholderText="dd/mm/yyyy"

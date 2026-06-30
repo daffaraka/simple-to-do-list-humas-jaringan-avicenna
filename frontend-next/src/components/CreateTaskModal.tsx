@@ -93,7 +93,7 @@ export function CreateTaskModal({ columnId, onClose }: CreateTaskModalProps) {
               </label>
               <DatePicker
                 selected={requestDate}
-                onChange={(date) => setRequestDate(date)}
+                onChange={(date: any) => setRequestDate(date)}
                 dateFormat="dd/MM/yyyy"
                 locale={id}
                 placeholderText="dd/mm/yyyy"
@@ -109,7 +109,7 @@ export function CreateTaskModal({ columnId, onClose }: CreateTaskModalProps) {
               </label>
               <DatePicker
                 selected={dueDate}
-                onChange={(date) => setDueDate(date)}
+                onChange={(date: any) => setDueDate(date)}
                 dateFormat="dd/MM/yyyy"
                 locale={id}
                 placeholderText="dd/mm/yyyy"

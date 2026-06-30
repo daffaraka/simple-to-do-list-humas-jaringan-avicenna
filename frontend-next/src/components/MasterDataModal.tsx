@@ -179,7 +179,7 @@ export function MasterDataModal({ type, initialData, onClose, onSuccess }: Maste
                 </label>
                 <DatePicker
                   selected={targetDate}
-                  onChange={(date) => setTargetDate(date)}
+                  onChange={(date: any) => setTargetDate(date)}
                   dateFormat="dd/MM/yyyy"
                   locale={dateFnsIdLocale}
                   placeholderText="dd/mm/yyyy"

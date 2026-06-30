@@ -203,7 +203,7 @@ export function CardModal({ card, onClose }: CardModalProps) {
                 <h4 className="text-sm font-medium text-textSecondary mb-2">Target Tanggal</h4>
                 <DatePicker
                   selected={card.requestDate ? new Date(card.requestDate) : null}
-                  onChange={(date) => updateCard(card.id, { requestDate: date ? date.toISOString() : null })}
+                  onChange={(date: any) => updateCard(card.id, { requestDate: date ? date.toISOString() : null })}
                   dateFormat="dd/MM/yyyy"
                   locale={dateFnsIdLocale}
                   placeholderText="dd/mm/yyyy"
@@ -215,7 +215,7 @@ export function CardModal({ card, onClose }: CardModalProps) {
                 <h4 className="text-sm font-medium text-textSecondary mb-2">Tanggal Selesai</h4>
                 <DatePicker
                   selected={card.dueDate ? new Date(card.dueDate) : null}
-                  onChange={(date) => updateCard(card.id, { dueDate: date ? date.toISOString() : null })}
+                  onChange={(date: any) => updateCard(card.id, { dueDate: date ? date.toISOString() : null })}
                   dateFormat="dd/MM/yyyy"
                   locale={dateFnsIdLocale}
                   placeholderText="dd/mm/yyyy"
@@ -449,7 +449,7 @@ export function CardModal({ card, onClose }: CardModalProps) {
               </div>
               <DatePicker
                 selected={card.dueDate ? new Date(card.dueDate) : null}
-                onChange={(date) => updateCard(card.id, { dueDate: date ? date.toISOString() : null })}
+                onChange={(date: any) => updateCard(card.id, { dueDate: date ? date.toISOString() : null })}
                 dateFormat="dd/MM/yyyy"
                 locale={dateFnsIdLocale}
                 placeholderText="dd/mm/yyyy"
