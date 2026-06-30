@@ -83,6 +83,14 @@ export function Header() {
             <span className="hidden xl:block">Pekerjaan Saya</span>
           </Link>
           <Link
+            href="/view-jobs"
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border whitespace-nowrap ${pathname === "/view-jobs" ? "bg-indigo-600/20 text-indigo-400 border-indigo-500/30" : "text-textSecondary border-transparent hover:bg-bgGlass"}`}
+            title="View Jobs"
+          >
+            <Layers size={16} className="shrink-0" />
+            <span className="hidden xl:block">View Jobs</span>
+          </Link>
+          <Link
             href="/calendar"
             onClick={() => setActiveBoardId(null)}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border whitespace-nowrap ${pathname === "/calendar" ? "bg-indigo-600/20 text-indigo-400 border-indigo-500/30" : "text-textSecondary border-transparent hover:bg-bgGlass"}`}
