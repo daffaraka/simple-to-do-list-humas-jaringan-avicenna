@@ -14,9 +14,9 @@ interface KanbanCardProps {
 }
 
 const PRIORITY_COLORS = {
-  low: 'bg-gray-500/10 text-gray-600 dark:bg-gray-500/20 dark:text-gray-300',
-  medium: 'bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300',
-  high: 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-300',
+  low: 'bg-gray-500 text-white font-extrabold shadow-sm',
+  medium: 'bg-indigo-500 text-white font-extrabold shadow-sm',
+  high: 'bg-red-500 text-white font-extrabold shadow-sm',
 };
 
 export function KanbanCard({ card, isOverlay }: KanbanCardProps) {
